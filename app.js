@@ -12,6 +12,7 @@ if (fs.existsSync(localConfigPath)) {
     var local = require(localConfigPath);
     app.dev();
     if (local.deployTo) app.deployTo(local.deployTo);
+    if (local.port) app.port(local.port);
     if (local.vhost) app.vhost(local.vhost);
     if (local.auth) app.auth(local.auth);
 }
@@ -26,7 +27,15 @@ app
 // universal
 app
     .all()
-    .db("w3c-library")
+    .db("w3clibrary")
+;
+
+// process CLI and run
+app
+    .cli() // this doesn't seem to work
+    .deploy(function (err) {
+        console.log(err ? "BAD!" : "ALL OK!");
+    })
 ;
 
 // XXX
