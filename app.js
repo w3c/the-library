@@ -17,18 +17,33 @@ if (fs.existsSync(localConfigPath)) {
     if (local.auth) app.auth(local.auth);
 }
 
-// production values
+// production settings
 app
     .prod()
         .deployTo("https://deploy.library.w3c-test.org/")
         .vhost("library.w3c-test.org")
 ;
 
-// universal
+// universal settings
 app
     .all()
-    .db("w3clibrary")
+        .db("w3clibrary")
+        .index("/index.html")
 ;
+
+// load statics
+var statPath = pth.join(__dirname, "static");
+app.addStatics([
+        { path: "/index.html",          content: pth.join(statPath, "index.html") }
+    ,   { path: "/js/angular.min.js",   content: pth.join(statPath, "js/angular.min.js") }
+    ,   { path: "/js/jquery.min.js",    content: pth.join(statPath, "js/jquery.min.js") }
+    ,   { path: "/bootstrap/js/bootstrap.min.js"
+        , content: pth.join(statPath, "bootstrap/js/bootstrap.min.js") }
+    ,   { path: "/bootstrap/css/bootstrap.min.css"
+        , content: pth.join(statPath, "bootstrap/css/bootstrap.min.css") }
+    ,   { path: "/bootstrap/css/bootstrap-responsive.min.css"
+        , content: pth.join(statPath, "bootstrap/css/bootstrap-responsive.min.css") }
+]);
 
 // process CLI and run
 app
