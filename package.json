@@ -1,0 +1,8 @@
+{
+    "name":     "w3c-the-library"
+,   "version":  "0.0.1"
+,   "private":  true
+,   "dependencies": {
+        "couth":    "*"
+    }
+}
