@@ -63,6 +63,57 @@ AppTester.prototype = {
             cb();
         });
     }
+,   update: function (path, obj, cb) {
+        var url = (this.server + path).replace(/:id$/, obj._id);
+        request.put(url, { json: obj }, function (err, res) {
+            expect(err).to.not.be.ok();
+            expect(res.statusCode).to.equal(201);
+            obj._rev = res.headers["x-couch-update-newrev"];
+            cb();
+        });
+    }
+,   noGuestCreate:  function (path, obj, cb) {
+        obj.$type = this.name;
+        var url = this.anonServer + path;
+        request.post(url, { json: obj }, function (err, res, doc) {
+            expect(err).to.not.be.ok();
+            expect(res.statusCode).to.equal(403);
+            expect(doc.error).to.equal("forbidden");
+            cb();
+        });
+        
+    }
+,   noGuestUpdate:  function (path, obj, cb) {
+        var url = (this.anonServer + path).replace(/:id$/, obj._id);
+        request.put(url, { json: obj }, function (err, res, doc) {
+            expect(err).to.not.be.ok();
+            expect(res.statusCode).to.equal(403);
+            expect(doc.error).to.equal("forbidden");
+            cb();
+        });
+    }
+,   noGuestDelete:  function (path, obj, cb) {
+        var url = (this.anonServer + path).replace(/:id$/, obj._id);
+        request.del(url, function (err, res, doc) {
+            doc = JSON.parse(doc);
+            expect(err).to.not.be.ok();
+            expect(res.statusCode).to.equal(403);
+            expect(doc.error).to.equal("forbidden");
+            cb();
+        });
+        
+    }
+,   noInvalid:  function (path, obj, cb) {
+        var url = this.server + path;
+        obj.$type = this.name;
+        request.post(url, { json: obj }, function (err, res, doc) {
+            expect(err).to.not.be.ok();
+            expect(res.statusCode).to.equal(403);
+            expect(doc.error).to.equal("forbidden");
+            cb();
+        });
+        
+    }
 ,   remove: function (path, objects, cb) {
         objects = objects.concat([]);
         var url = this.server + path;

@@ -7,6 +7,8 @@ var AppTester = require("./lib/tester")
     ,   { shortName: "rex", sources: [{ url: "http://rex", type: "html-spec" }] }
     ,   { shortName: "svg", sources: [{ url: "http://svg1", type: "respec-source" }, { url: "http://svg2", type: "respec-output" }] }
     ]
+,   valid = { shortName: "xpath", sources: [] }
+,   invalid = { shortName: 42 }
 ;
 
 describe("Specifications", function () {
@@ -19,11 +21,21 @@ describe("Specifications", function () {
     it("should get all at once", function (done) {
         tester.all("/specs", specs, done);
     });
+    it("should update documents", function (done) {
+        specs[0].sources.push({ url: "http://html", type: "html-spec" });
+        tester.update("/spec/:id", specs[0], done);
+    });
+    it("should enforce permissions", function (done) {
+        async.series([
+            function (cb) { tester.noGuestCreate("/specs/create", valid, cb); }
+        ,   function (cb) { tester.noGuestUpdate("/spec/:id", specs[0], cb); }
+        ,   function (cb) { tester.noGuestDelete("/spec/:id", specs[0], cb); }
+        ], done);
+    });
     it("should remove the documents", function (done) {
         tester.remove("/spec/*", specs, done);
     });
+    it("should reject invalid documents", function (done) {
+        tester.noInvalid("/specs/create", invalid, done);
+    });
 });
-
-// XXX
-// - check that create, update, delete without being logged produces an error
-// - check that creating or updating an invalid document fails
