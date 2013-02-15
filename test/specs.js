@@ -9,12 +9,20 @@ var AppTester = require("./lib/tester")
     ]
 ;
 
-async.series([
-    function (cb) { tester.populate("/specs/create", specs, cb); }
-// ,   function (cb) { tester.each("/spec/:id", "shortName", specs, cb); }
-// ,   function (cb) { tester.all("/specs", specs, cb); }
-,   function (cb) { tester.remove("/spec/*", specs, cb); }
-]);
+describe("Specifications", function () {
+    it("should populate", function (done) {
+        tester.populate("/specs/create", specs, done);
+    });
+    it("should get each individually", function (done) {
+        tester.each("/spec/:id", "shortName", specs, done);
+    });
+    it("should get all at once", function (done) {
+        tester.all("/specs", specs, done);
+    });
+    it("should remove the documents", function (done) {
+        tester.remove("/spec/*", specs, done);
+    });
+});
 
 // XXX
 // - check that create, update, delete without being logged produces an error
