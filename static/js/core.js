@@ -1,7 +1,13 @@
 /*global angular */
 
+function NavCtrl ($scope, $rootScope, $location) {
+    $rootScope.pathActive = function (path) {
+        return ($location.path().substr(0, path.length) === path) ? "active" : "";
+    };
+}
+
 function SpecsCtrl ($scope, $rootScope, Specs) {
-    $scope.specs = Specs.query();
+    $scope.specs = Specs.list().rows;
 }
 
 angular.module("the-library", ["the-library-api"])
@@ -37,28 +43,6 @@ angular.module("the-library", ["the-library-api"])
 //     $scope.contents = Contents.get({ user: $rootScope.user, repo: $rootScope.repo, branch: branch, path: file });
 // }
 //
-
-
-// multiverse-api
-// /*global angular */
-//
-// angular.module("multiverse-api", ["ngResource"])
-//     .factory("Branches", function ($resource) {
-//         return $resource("https://api.github.com/repos/:user/:repo/branches"
-//                     ,   { callback: "JSON_CALLBACK" }
-//                     ,   { query: { method: "JSONP" }}
-//                     );
-//     })
-//     .factory("Contents", function ($resource) {
-//         return $resource("https://api.github.com/repos/:user/:repo/contents/:path"
-//                     ,   { callback: "JSON_CALLBACK", path: "" }
-//                     ,   {
-//                             query: { method: "JSONP", ref: "@branch" }
-//                         ,   get: { method: "JSONP", ref: "@branch" }
-//                         }
-//                     );
-//     })
-//     ;
 
 // templates
 

@@ -1,2 +1,18 @@
 
-<h2>Specs</h2>
+<div>
+  <h2>Specs</h2>
+  <table>
+    <tr>
+      <th>Key</th>
+      <th>Sources</th>
+    </tr>
+    <tr ng-repeat='spec in specs'>
+      <td>{{ spec.shortName }}</td>
+      <td>
+        <ul>
+          <li ng-repeat='src in spec.sources'><a href='{{src.url}}'>{{src.url}}</a> <span>{{src.type}}</span></li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>
