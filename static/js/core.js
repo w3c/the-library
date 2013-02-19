@@ -1,22 +1,20 @@
 /*global angular */
 
-function NavCtrl ($scope, $rootScope, $location) {
-    $rootScope.pathActive = function (path) {
-        return ($location.path().substr(0, path.length) === path) ? "active" : "";
-    };
-}
-
-function SpecsCtrl ($scope, $rootScope, Specs) {
-    $scope.specs = Specs.list().rows;
-}
-
 angular.module("the-library", ["the-library-api"])
     .config(function ($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $routeProvider
             .when("/", { templateUrl: "/templates/home.html" })
-            .when("/app/specs/", { controller: SpecsCtrl, templateUrl: "/templates/specs.html" })
+            .when("/app/specs/", { controller: "SpecsCtrl", templateUrl: "/templates/specs.html" })
             .otherwise({ redirectTo: "/" });
+    })
+    .controller("NavCtrl", function ($scope, $rootScope, $location) {
+        $rootScope.pathActive = function (path) {
+            return ($location.path().substr(0, path.length) === path) ? "active" : "";
+        };
+    })
+    .controller("SpecsCtrl", function ($scope, $rootScope, Specs) {
+        $scope.specs = Specs.list().rows;
     })
 ;
 
