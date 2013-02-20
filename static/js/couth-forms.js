@@ -6,13 +6,20 @@ angular.module("couth-forms", [])
     //     CouthForms.prototype
     //     return new CouthForms();
     // })
-    .directive("couth-form", function () {
+    .config(function () {
+        console.log("config");
+    })
+    .directive("couthForm", function () {
+        console.log("directive called");
         var formDef = {
             scope:      true
+        ,   priority:   10000
         ,   restrict:   "A"
         ,   replace:    false
-        ,   template:   "" // XXX need to define this
+         // XXX this doesn't seem to be doing anything for now, or rather the include is not triggering
+        ,   template:   "<div ng-include='couth-forms.html'></div>"
         ,   link:   function (scope, el, attrs) {
+                console.log(scope, el, attrs);
                 // get attributes for:
                 //      - schema source
                 //      - ui tweaks source
@@ -27,4 +34,3 @@ angular.module("couth-forms", [])
         return formDef;
     })
 ;
-

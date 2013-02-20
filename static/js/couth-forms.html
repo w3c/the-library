@@ -1,0 +1,22 @@
+
+<!-- might need to nest the switch and includes -->
+<div ng-repeat='field in $couthForm.fields' ng-switch on='type'>
+  <div ng-switch-when='string' ng-include='/couth-forms/string.part'></div>
+  <div ng-switch-when='number' ng-include='/couth-forms/number.part'></div>
+  <div ng-switch-when='boolean' ng-include='/couth-forms/boolean.part'></div>
+  <div ng-switch-default>BOOM</div>
+</div>
+
+<script type='text/ng-template' id='/couth-forms/string.part'>
+  <input type='text'>
+</script>
+
+<script type='text/ng-template' id='/couth-forms/number.part'>
+  <input type='number'>
+</script>
+
+<script type='text/ng-template' id='/couth-forms/boolean.part'>
+  <input type='radio' value='true'> on
+  <input type='radio' value='false'> off
+</script>
+

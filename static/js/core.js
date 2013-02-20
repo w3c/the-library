@@ -1,6 +1,6 @@
 /*global angular */
 
-angular.module("the-library", ["the-library-api"])
+angular.module("the-library", ["the-library-api", "couth-forms"])
     .config(function ($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $routeProvider
