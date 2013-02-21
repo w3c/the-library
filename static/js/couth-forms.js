@@ -1,5 +1,12 @@
 /*global angular */
 
+// THE PLAN
+//  - switch to a super simple schema (just a string or some such)
+//  - include a dump that monitors the form's scope so we can see the data {{ scope | json }} or something
+//  - add some submit and reset buttons
+//  - then incrementally complexify the schema until we can support our stuff
+//  - also incrementally fix the styling and add UI controls
+
 angular.module("couth-forms", [])
     .directive("couthForm", function () {
         var formDef = {
@@ -15,7 +22,9 @@ angular.module("couth-forms", [])
                 console.log(scope, el, attrs);
                 // we could $watch this, but I'm not sure it's a great idea to change it at runtime
                 scope.$couthType = attrs.couthType;
-                scope.$couthSchemaURL = "/couth/types/" + attrs.couthType + ".json";
+                // scope.$couthSchemaURL = "/couth/types/" + attrs.couthType + ".json";
+                // XXX debug
+                scope.$couthSchemaURL = "/js/dev.json";
                 // XXX add support for ui tweaking
             }
         };
@@ -83,7 +92,7 @@ angular.module("couth-forms", [])
                         }
                         else if (sch.type === "string") {
                             toEnum(sch, cur);
-                            cur.pattern = sch.pattern || null;
+                            cur.pattern = sch.pattern || ".*";
                             // cur.minLength = sch.minLength || false; // XXX missing in HTML
                             cur.maxLength = sch.maxLength || null;
                         }
