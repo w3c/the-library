@@ -1,29 +1,22 @@
 /*global angular */
 
 angular.module("couth-forms", [])
-    // .factory("couthForms", function () {
-    //     function CouthForms () {}
-    //     CouthForms.prototype
-    //     return new CouthForms();
-    // })
     .directive("couthForm", function () {
         var formDef = {
             scope:      true
         ,   restrict:   "A"
         ,   replace:    false
-         // XXX this doesn't seem to be doing anything for now, or rather the include is not triggering
-         // we need to ensure that this has a correct full path because the url is not resolved
-         // relative to script
+        // XXX
+        // we need to ensure that this has a correct full path because the url is not resolved
+        // relative to script. Once this is folded into couth it'll be under /couth/ alongside
+        // this script
         ,   template:   "<div ng-include=\"'/js/couth-forms.html'\"></div>"
         ,   link:   function (scope, el, attrs) {
                 console.log(scope, el, attrs);
                 // we could $watch this, but I'm not sure it's a great idea to change it at runtime
                 scope.$couthType = attrs.couthType;
                 scope.$couthSchemaURL = "/couth/types/" + attrs.couthType + ".json";
-                // get attributes for:
-                //      - schema source
-                //      - ui tweaks source
-                //      - new or edit (adds _id and _rev)
+                // XXX add support for ui tweaking
             }
         };
         return formDef;
@@ -138,91 +131,5 @@ angular.module("couth-forms", [])
                 // XXX dispatch an error event
             });
         });
-
-        
-        // grab the schema source
-        // convert it to a form structure
-        // assign the latter to scope.$couthForm
-        // run the template
-        // where do we get the instance from?
-        //
-        // convert that into something
-        //  object becomes a fieldset, with ng-form
-        //  that way we get nested forms that maintain their own context
-        //  and we avoid naming conflicts
-        //  array items get an ng-form too
-        //
-        // console.log("CouthFormCtrl", $scope);
-        // $scope.$couthForm = {
-        //     fields: [
-        //         { type: "string" }
-        //     ,   { type: "number" }
-        //     ,   { type: "boolean" }
-        //     ,   { type: "object", fields: [ { type: "number"}, { type: "boolean" }] }
-        //     ,   { type: "string" }
-        //     ]
-        // };
     })
 ;
-
-// {
-//     type:           "object"
-// ,   description:    "Specification"
-// ,   path:           "$root"
-// ,   fields: [
-//         {
-//             type:           "string"
-//         ,   description:    "Short name"
-//         ,   name:           "shortName"
-//         ,   path:           "$root.shortName"
-//         }
-//     ,   {
-//             type:           "array"
-//         ,   description:    "Sources"
-//         ,   name:           "sources"
-//         ,   path:           "$root.sources"
-//         ,   items:  {
-//                 type:   "object"
-//             ,   path:   "$root.sources[n]"
-//             ,   fields: [
-//                     {
-//                         type:           "string"
-//                     ,   description:    "URL"
-//                     ,   name:           "url"
-//                     ,   path:           "$root.sources[n].url"
-//                     }
-//                 ,   {
-//                         type:           "enum"
-//                     ,   subtype:        "string"
-//                     ,   description:    "Type"
-//                     ,   name:           "type"
-//                     ,   path:           "$root.sources[n].type"
-//                     ,   values:         ["html-spec", "respec-source", "respec-output"]
-//                     }
-//                 ]
-//             }
-//         }
-//     ]
-// }
-// {
-//     type:           "object"
-// ,   description:    "Specification"
-// ,   properties: {
-//         shortName:  namedRequiredString("Short name")
-//     ,   sources:    {
-//             type:           "array"
-//         ,   description:    "Sources"
-//         ,   items:  {
-//                 type:   "object"
-//             ,   properties: {
-//                     url:    namedRequiredString("URL")
-//                 ,   type:   {
-//                         type:           "string"
-//                     ,   description:    "Type"
-//                     ,   "enum":         ["html-spec", "respec-source", "respec-output"]
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
