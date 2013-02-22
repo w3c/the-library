@@ -17,5 +17,22 @@ angular.module("the-library", ["the-library-api"])
         var specs = Specs.list();
         $scope.specs = specs.rows;
         $scope.count = specs.total_rows;
+        // XXX don't do that
+        // replace with a real controller on the form that:
+        //  - can do new
+        //  - can do edit
+        //  - can serialise and send, taking _id, _rev, and proper URL/$resource.action into account
+        // $type needs to be part of the form (both new and edit), remove that silly code
+        // UI to show form (new button)
+        // add a bunch of content
+        // list content
+        //  - click row to edit
+        // pagination
+        var $formScope = angular.element($("#spec-form")[0]).scope();
+        $formScope.shortName = "test-me";
+        $formScope.sources = [
+            { url: "http://berjon.com/specA", type: "respec-source" }
+        ,   { url: "http://www.org/TR/html5", type: "html-spec" }
+        ];
     })
 ;
