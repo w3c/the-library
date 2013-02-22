@@ -1,3 +1,12 @@
+<!--
+  REPLAN
+  we can generate the form at build time, using HB
+  that will give us something a *lot* simpler since we avoid
+  having two levels of NG generation interfering at the same time
+  <form ng-include='/couth/forms/$type.html'></form>
+  it also gives us a lot more flexibility to customise things
+-->
+
 
 <!-- 
   TODO
@@ -9,6 +18,15 @@
   <legend>{{$couthForm.description}}</legend>
   <div ng-repeat='field in $couthForm.fields' ng-include="'/couth-forms/' + field.type + '.part'"
        ng-class='field.type != "hidden" &amp;&amp; "control-group" || false'></div>
+  <div class='control-group'>
+    <div class='controls'>
+      <button type='reset' class='btn btn-danger'>Reset</button>
+      <button type='submit' class='btn btn-success'>Save</button>
+    </div>
+  </div>
+  <pre>
+{{ $couthInstance | json }}
+  </pre>
 </fieldset>
 
 <script type='text/ng-template' id='/couth-forms/hidden.part'>
@@ -16,10 +34,15 @@
          id='{{$couthType}}.{{field.path}}' required='{{field.required}}'>
 </script>
 
+<!-- 
+// ng-change is bad since it's one-way
+// better to have something like $couthInstance on root and use path with ng-model
+// this needs s/$root/$couthInstance/ and path that has proper [n]
+-->
 <script type='text/ng-template' id='/couth-forms/string.part'>
   <label class='control-label' for='{{$couthType}}.{{field.path}}'>{{field.description}}</label>
   <div class='controls'>
-    <input type='text' ng-model='$parent[field.name]' name='{{field.name}}' 
+    <input type='text' ng-model='$couthInstance[field.path]' value=''
            id='{{$couthType}}.{{field.path}}' required='{{field.required}}'
            pattern='{{field.pattern}}' maxlength='{{field.maxLength}}'>
   </div>
