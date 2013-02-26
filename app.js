@@ -36,15 +36,17 @@ var statPath = pth.join(__dirname, "static");
 app.addStaticDir(statPath);
 
 // ### SPECS ###
-function namedRequiredString (name) {
-    return { type: "string", description: name, required: true };
+function namedRequiredString (name, pat) {
+    var ret = { type: "string", description: name, required: true };
+    if (pat) ret.pattern = pat;
+    return ret;
 }
 app.type("spec")
     .schema({
         type:           "object"
     ,   description:    "Specification"
     ,   properties: {
-            shortName:  namedRequiredString("Short name")
+            shortName:  namedRequiredString("Short name", "^\\S+$")
         ,   sources:    {
                 type:           "array"
             ,   description:    "Sources"
