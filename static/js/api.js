@@ -8,16 +8,25 @@
 // templates that display different controls depending on its value
 
 angular.module("the-library-api", ["ngResource"])
+    .config(function ($httpProvider) {
+        $httpProvider.defaults.transformRequest = [function (d) {
+            return angular.isObject(d) ? JSON.stringify(d) : d;
+        }];
+    })
     .factory("Specs", function ($resource) {
-        return $resource("/specs/:action", {}, {
-            list:   { method: "GET", action: "", isArray: true }
-        ,   create: { method: "POST", action: "create" }
+        return $resource("/specs/", {}, {
+            list:   { method: "GET", isArray: true }
+        });
+    })
+    .factory("CreateSpec", function ($resource) {
+        return $resource("/specs/create", {}, {
+            create: { method: "POST" }
         });
     })
     .factory("Spec", function ($resource) {
         return $resource("/spec/:id", {}, {
             read:   { method: "GET" }
-        ,   update: { method: "PUT" }
+        ,   update: { method: "PUT", transformRequest: [] }
         ,   remove: { method: "DELETE" }
         });
     })

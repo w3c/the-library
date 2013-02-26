@@ -13,10 +13,29 @@ angular.module("the-library", ["the-library-api"])
             return ($location.path().substr(0, path.length) === path) ? "active" : "";
         };
     })
-    .controller("SpecsCtrl", function ($scope, $rootScope, Specs) {
+    .controller("SpecsCtrl", function ($scope, $rootScope, Specs, CreateSpec) {
         var specs = Specs.list();
         $scope.specs = specs.rows;
         $scope.count = specs.total_rows;
+        $scope.$on("couth:create", function (evt, obj) {
+            console.log("create", obj);
+            var spec = new CreateSpec(obj);
+            spec.$create(function () {
+                console.log("success", arguments);
+            }, function (err) {
+                $scope.$emit("couth:error", { status: err.status, reason: err.reason || err.error || "unknown" });
+            });
+            // XXX
+            //  - reload Specs.list() // HOW?
+            //  - show message based on create() response
+        });
+        $scope.$on("couth:update", function (evt, obj) {
+            console.log("update", obj);
+        });
+        $scope.$on("couth:error", function (evt, obj) {
+            // XXX show the error using BS
+            console.log(obj);
+        });
     })
     // XXX
     // move this to a generic couth module
@@ -28,12 +47,26 @@ angular.module("the-library", ["the-library-api"])
             ,   { url: "http://www.org/TR/html5", type: "html-spec" }
             ]
         };
+        $scope.$couthMode = "new";
         $scope.$couthSave = function () {
+            if (!$scope.$couthForm.$valid) {
+                // XXX add some details here
+                $scope.$emit("couth:error", { reason: "Form is invalid." });
+                return;
+            }
             // XXX
-            // check that it's valid, if not return
-            //  - how do I access couthForm?
-            //  - how do I wire this into the API? an event?
-            console.log($scope);
+            // dispatch an event (couth:create or couth:update) to which a higher-up controller can listen
+            var obj = JSON.parse(JSON.stringify($scope.$couthInstance, function (key, val) {
+                if (key === "$$hashKey") return undefined;
+                return val;
+            }));
+            $scope.$emit($scope.$couthMode === "new" ? "couth:create" : "couth:update", obj);
+        };
+        $scope.$couthReset = function (evt) {
+            // XXX
+            //  if in new mode, just kill the $couthInstance
+            //  if in edit mode, revert to the original (which we save somewhere)
+            evt.preventDefault();
         };
         $scope.$couthArrayDel = function (path, idx, evt) {
             $scope.$eval(path).splice(idx, 1);
