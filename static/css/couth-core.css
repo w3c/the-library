@@ -9,3 +9,16 @@
     border-radius:  5px;
 }
 
+.couth-move {
+    float:  right;
+    margin-right:   10px;
+}
+
+.couth-item-delete {
+    float:  right;
+}
+
+/* just to make sure we're on the safe side, FOUC wise */
+[ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none;
+}

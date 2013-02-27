@@ -144,7 +144,7 @@ angular.module("the-library", ["the-library-api"])
         };
     })
     // XXX move this to couth
-    .controller("CouthUserCtrl", function ($scope, $rootScope, $http) {
+    .controller("CouthCtrl", function ($scope, $rootScope, $http) {
         function resetUser () {
             $rootScope.$couthUser = {
                 name:       null
@@ -202,6 +202,15 @@ angular.module("the-library", ["the-library-api"])
                 })
             ;
         };
+        // errors and successes messaging
+        $scope.$couthError = false;
+        $scope.$on("couth:error", function (evt, data) {
+            $scope.$couthError = data.reason;
+        });
+        $scope.$couthSuccess = false;
+        $scope.$on("couth:success", function (evt, data) {
+            $scope.$couthSuccess = data.reason;
+        });
     })
 ;
 
