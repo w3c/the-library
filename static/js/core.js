@@ -23,7 +23,7 @@ angular.module("the-library", ["the-library-api"])
             });
         }
         listSpecs();
-        $scope.$on("couth:create", function (evt, obj) {
+        $scope.$on("couth:create", function (evt, obj, scope) {
             loading();
             console.log("create", obj);
             // XXX before doing that, we need to check that it's unique with a GET to its (real) ID
@@ -31,11 +31,9 @@ angular.module("the-library", ["the-library-api"])
             var spec = new CreateSpec(obj);
             spec.$create(function () {
                 done();
-                console.log("success", arguments);
+                scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification created." });
                 listSpecs();
-                // XXX
-                //  - reset form
             }, function (err) {
                 done();
                 console.log(err);
@@ -64,12 +62,11 @@ angular.module("the-library", ["the-library-api"])
                 return;
             }
             // dispatch an event (couth:create or couth:update) to which a higher-up controller can listen
-            $scope.$emit($scope.$couthMode === "new" ? "couth:create" : "couth:update", $scope.$couthInstance);
+            $scope.$emit($scope.$couthMode === "new" ? "couth:create" : "couth:update", $scope.$couthInstance, $scope);
         };
         $scope.$couthReset = function (evt) {
-            // XXX
-            //  if in new mode, just kill the $couthInstance
-            //  if in edit mode, revert to the original (which we save somewhere)
+            // XXX need to revert in edit mode (otherwise we maintain weird data)
+            $scope.$couthFormShow = false;
             evt.preventDefault();
         };
         $scope.$couthArrayDel = function (path, idx, evt) {
@@ -97,12 +94,6 @@ angular.module("the-library", ["the-library-api"])
         };
         // XXX
         //  edit communication model
-        //  $emit("couth:edit", object)
-        //      - rootScope knows of editor (it self registers)
-        //      - then calls editor.$couthEdit(obj)
-        //  $emit("couth:new", type)
-        //      - rootScope knows of editor (it self registers)
-        //      - then calls editor.$couthNew()
         //  $emit("couth:delete", spec)
         //      - first shows a confirmation
         //      - then dispatches to the API (which means we need to know which one it is, which means refactoring)
@@ -293,7 +284,7 @@ angular.module("the-library", ["the-library-api"])
         $scope.$on("couth:new", function (evt, type) {
             var ed = $scope.$couthEditors[type];
             if (!ed) return;
-            ed.$couthInstance = {};
+            ed.$couthInstance = { couthType: type };
             ed.$couthMode = "new";
             ed.$couthFormShow = true;
         });
