@@ -18,16 +18,25 @@ angular.module("the-library", ["the-library-api"])
         $scope.specs = specs.rows;
         $scope.count = specs.total_rows;
         $scope.$on("couth:create", function (evt, obj) {
+            // XXX start progress indicator
             console.log("create", obj);
             var spec = new CreateSpec(obj);
             spec.$create(function () {
                 console.log("success", arguments);
+                // XXX
+                //  - end progress indicator
+                //  - reset form
+                //  - reload Specs.list() // HOW?
+                //  - showsuccess message (emit couth:success)
             }, function (err) {
-                $scope.$emit("couth:error", { status: err.status, reason: err.reason || err.error || "unknown" });
+                console.log(err);
+                // XXX
+                //  - end progress indicator
+                //  - show error message
+                var reason = "unknown";
+                if (err.data) reason = err.data.reason || err.data.error;
+                $scope.$emit("couth:error", { status: err.status, reason: reason });
             });
-            // XXX
-            //  - reload Specs.list() // HOW?
-            //  - show message based on create() response
         });
         $scope.$on("couth:update", function (evt, obj) {
             console.log("update", obj);
@@ -96,7 +105,7 @@ angular.module("the-library", ["the-library-api"])
         // some common CSS complementing bootstrap loaded in /couth/css/form.css
         
     })
-    // XXX move this to the core
+    // XXX move this to couth
     // built from http://www.smartjava.org/content/drag-and-drop-angularjs-using-jquery-ui
     .directive('couthDnd', function() {
         return function (scope, element, attrs) {
@@ -134,4 +143,195 @@ angular.module("the-library", ["the-library-api"])
             });
         };
     })
+    // XXX move this to couth
+    .controller("CouthUserCtrl", function ($scope, $rootScope, $http) {
+        function resetUser () {
+            $rootScope.$couthUser = {
+                name:       null
+            ,   roles:      []
+            ,   isAdmin:    false
+            };
+        }
+        function isAdmin (roles) {
+            return roles.indexOf("_admin") > -1;
+        }
+        $http.get("/couth/session")
+            .success(function (data) {
+                $rootScope.$couthUser = data.userCtx;
+                $rootScope.$couthUser.isAdmin = isAdmin(data.userCtx.roles);
+            })
+            .error(function () {
+                resetUser();
+                $scope.$emit("couth:error", { reason: "Failed to open a session with the server." });
+            })
+        ;
+        $rootScope.$couthLogin = function (username, password) {
+            $http.post("/couth/login", { name: username, password: password })
+                .success(function (data) {
+                    if (!$rootScope.$couthUser) $rootScope.$couthUser = {};
+                    $rootScope.$couthUser.name = username; // Couch returns null for that
+                    $rootScope.$couthUser.roles = data.roles;
+                    $rootScope.$couthUser.isAdmin = isAdmin(data.roles);
+                })
+                .error(function (data, status) {
+                    resetUser();
+                    $scope.$emit("couth:error", { status: status, reason: data.reason || "Login failed." });
+                })
+            ;
+        };
+        $rootScope.$couthLogout = function () {
+            $http["delete"]("/couth/logout")
+                .success(resetUser)
+                .error(function () {
+                    // I'm not sure this can ever happen
+                    $scope.$emit("couth:error", { reason: "Logout failed." });
+                })
+            ;
+        };
+        $rootScope.$couthSignup = function (username, password) {
+            var id = encodeURIComponent("org.couchdb.user:" + username);
+            $http.put("/couth/signup/" + id, { name: username, password: password, type: "user", roles: [] })
+                .success(function () {
+                    if (!$rootScope.$couthUser) $rootScope.$couthUser = {};
+                    $rootScope.$couthUser.name = username;
+                    $rootScope.$couthUser.roles = [];
+                    $rootScope.$couthUser.isAdmin = false;
+                })
+                .error(function (data, status) {
+                    $scope.$emit("couth:error", { status: status, reason: data.reason || "Signup failed." });
+                })
+            ;
+        };
+    })
 ;
+
+// XXX login
+//  we need to have backend mappings for that (which go above the _rewrite)
+//      - /couth/session -> GET /_session
+//      {"ok":true,"userCtx":{"name":null,"roles":[]},"info":{"authentication_db":"_users","authentication_handlers":["oauth","cookie","default"]}}
+//      - /couth/login -> POST /_session
+//      - /couth/logout -> DELETE /_session
+//      - /couth/signup/:id -> PUT /_users/encodeURIComponent(doc._id)
+
+// from jQ.Couch
+// signup: function(user_doc, password, options) {
+//   options = options || {};
+//   user_doc.password = password;
+//   user_doc.roles =  user_doc.roles || [];
+//   user_doc.type =  user_doc.type = "user" || [];
+//   var user_prefix = "org.couchdb.user:";
+//   user_doc._id = user_doc._id || user_prefix + user_doc.name;
+//
+//   $.couch.userDb(function(db) {
+//     db.saveDoc(user_doc, options);
+//   });
+// },
+// login: function(options) {
+//   options = options || {};
+//   $.ajax({
+//     type: "POST", url: this.urlPrefix + "/_session", dataType: "json",
+//     data: {name: options.name, password: options.password},
+//     beforeSend: function(xhr) {
+//         xhr.setRequestHeader('Accept', 'application/json');
+//     },
+//     complete: function(req) {
+//       var resp = $.parseJSON(req.responseText);
+//       if (req.status == 200) {
+//         if (options.success) options.success(resp);
+//       } else if (options.error) {
+//         options.error(req.status, resp.error, resp.reason);
+//       } else {
+//         throw 'An error occurred logging in: ' + resp.reason;
+//       }
+//     }
+//   });
+// },
+// logout: function(options) {
+//   options = options || {};
+//   $.ajax({
+//     type: "DELETE", url: this.urlPrefix + "/_session", dataType: "json",
+//     username : "_", password : "_",
+//     beforeSend: function(xhr) {
+//         xhr.setRequestHeader('Accept', 'application/json');
+//     },
+//     complete: function(req) {
+//       var resp = $.parseJSON(req.responseText);
+//       if (req.status == 200) {
+//         if (options.success) options.success(resp);
+//       } else if (options.error) {
+//         options.error(req.status, resp.error, resp.reason);
+//       } else {
+//         throw 'An error occurred logging out: ' + resp.reason;
+//       }
+//     }
+//   });
+// },
+// XXX this isn't needed, if there's a difference it'll have the be handled by the backend
+// userDb : function(callback) {
+//   $.couch.session({
+//     success : function(resp) {
+//       var userDb = $.couch.db(resp.info.authentication_db);
+//       callback(userDb);
+//     }
+//   });
+// },
+// session: function(options) {
+//       options = options || {};
+//       $.ajax({
+//         type: "GET", url: this.urlPrefix + "/_session",
+//         beforeSend: function(xhr) {
+//             xhr.setRequestHeader('Accept', 'application/json');
+//         },
+//         complete: function(req) {
+//           var resp = $.parseJSON(req.responseText);
+//           if (req.status == 200) {
+//             if (options.success) options.success(resp);
+//           } else if (options.error) {
+//             options.error(req.status, resp.error, resp.reason);
+//           } else {
+//             throw "An error occurred getting session info: " + resp.reason;
+//           }
+//         }
+//       });
+//     },
+// saveDoc: function(doc, options) {
+//           options = options || {};
+//           var db = this;
+//           var beforeSend = fullCommit(options);
+//           if (doc._id === undefined) {
+//             var method = "POST";
+//             var uri = this.uri;
+//           } else {
+//             var method = "PUT";
+//             var uri = this.uri + encodeDocId(doc._id);
+//           }
+//           var versioned = maybeApplyVersion(doc);
+//           $.ajax({
+//             type: method, url: uri + encodeOptions(options),
+//             contentType: "application/json",
+//             dataType: "json", data: toJSON(doc),
+//             beforeSend : beforeSend,
+//             complete: function(req) {
+//               var resp = $.parseJSON(req.responseText);
+//               if (req.status == 200 || req.status == 201 || req.status == 202) {
+//                 doc._id = resp.id;
+//                 doc._rev = resp.rev;
+//                 if (versioned) {
+//                   db.openDoc(doc._id, {
+//                     attachPrevRev : true,
+//                     success : function(d) {
+//                       doc._attachments = d._attachments;
+//                       if (options.success) options.success(resp);
+//                     }
+//                   });
+//                 } else {
+//                   if (options.success) options.success(resp);
+//                 }
+//               } else if (options.error) {
+//                 options.error(req.status, resp.error, resp.reason);
+//               } else {
+//                 throw "The document could not be saved: " + resp.reason;
+//               }
+//             }
+//           });
+//         },

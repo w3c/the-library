@@ -12,11 +12,11 @@
 //  - make it so that couthType uses something else, like couthType, because it interferes with angular
 
 angular.module("the-library-api", ["ngResource"])
-    .config(function ($httpProvider) {
-        $httpProvider.defaults.transformRequest = [function (d) {
-            return angular.isObject(d) ? JSON.stringify(d) : d;
-        }];
-    })
+    // .config(function ($httpProvider) {
+    //     $httpProvider.defaults.transformRequest = [function (d) {
+    //         return angular.isObject(d) ? JSON.stringify(d) : d;
+    //     }];
+    // })
     .factory("Specs", function ($resource) {
         return $resource("/specs/", {}, {
             list:   { method: "GET", isArray: true }
@@ -30,7 +30,7 @@ angular.module("the-library-api", ["ngResource"])
     .factory("Spec", function ($resource) {
         return $resource("/spec/:id", {}, {
             read:   { method: "GET" }
-        ,   update: { method: "PUT", transformRequest: [] }
+        ,   update: { method: "PUT" }
         ,   remove: { method: "DELETE" }
         });
     })
