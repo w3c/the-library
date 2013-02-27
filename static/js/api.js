@@ -7,6 +7,10 @@
 // we need a root couthUser object that can also make it possible to have
 // templates that display different controls depending on its value
 
+// Change the API:
+//  - make it so that we can have a single resource provider for an API
+//  - make it so that couthType uses something else, like couthType, because it interferes with angular
+
 angular.module("the-library-api", ["ngResource"])
     .config(function ($httpProvider) {
         $httpProvider.defaults.transformRequest = [function (d) {

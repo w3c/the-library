@@ -24,7 +24,7 @@ AppTester.prototype = {
         function sendObj () {
             if (!objects.length) return cb();
             var obj = objects.shift();
-            obj.$type = self.name;
+            obj.couthType = self.name;
             request.post(url, { json: obj }, function (err, res, doc) {
                 expect(err).to.not.be.ok();
                 expect(res.statusCode).to.equal(201);
@@ -73,7 +73,7 @@ AppTester.prototype = {
         });
     }
 ,   noGuestCreate:  function (path, obj, cb) {
-        obj.$type = this.name;
+        obj.couthType = this.name;
         var url = this.anonServer + path;
         request.post(url, { json: obj }, function (err, res, doc) {
             expect(err).to.not.be.ok();
@@ -105,7 +105,7 @@ AppTester.prototype = {
     }
 ,   noInvalid:  function (path, obj, cb) {
         var url = this.server + path;
-        obj.$type = this.name;
+        obj.couthType = this.name;
         request.post(url, { json: obj }, function (err, res, doc) {
             expect(err).to.not.be.ok();
             expect(res.statusCode).to.equal(403);
