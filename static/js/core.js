@@ -14,31 +14,31 @@ angular.module("the-library", ["the-library-api"])
         };
     })
     .controller("SpecsCtrl", function ($scope, $rootScope, Specs, CreateSpec) {
-        Specs.list(function (data) {
-            $scope.specs = data.rows;
-            $scope.count = data.total_rows;
-        });
-        // var specs = Specs.list();
-        // $scope.specs = specs.rows;
-        // $scope.count = specs.total_rows;
+        function loading () { $scope.$emit("couth:loading"); }
+        function done () { $scope.$emit("couth:done"); }
+        function listSpecs () {
+            Specs.list(function (data) {
+                $scope.specs = data.rows;
+                $scope.count = data.total_rows;
+            });
+        }
+        listSpecs();
         $scope.$on("couth:create", function (evt, obj) {
-            // XXX start progress indicator
+            loading();
             console.log("create", obj);
             // XXX before doing that, we need to check that it's unique with a GET to its (real) ID
             // and for *that* to happen, its ID field needs to be known
             var spec = new CreateSpec(obj);
             spec.$create(function () {
+                done();
                 console.log("success", arguments);
+                $scope.$emit("couth:success", { reason: "Specification created." });
+                listSpecs();
                 // XXX
-                //  - end progress indicator
                 //  - reset form
-                //  - reload Specs.list() // HOW?
-                //  - showsuccess message (emit couth:success)
             }, function (err) {
+                done();
                 console.log(err);
-                // XXX
-                //  - end progress indicator
-                //  - show error message
                 var reason = "unknown";
                 if (err.data) reason = err.data.reason || err.data.error;
                 $scope.$emit("couth:error", { status: err.status, reason: reason });
@@ -95,12 +95,23 @@ angular.module("the-library", ["the-library-api"])
             arr.push(empty);
             evt.preventDefault();
         };
+        // XXX
+        //  edit communication model
+        //  $emit("couth:edit", object)
+        //      - rootScope knows of editor (it self registers)
+        //      - then calls editor.$couthEdit(obj)
+        //  $emit("couth:new", type)
+        //      - rootScope knows of editor (it self registers)
+        //      - then calls editor.$couthNew()
+        //  $emit("couth:delete", spec)
+        //      - first shows a confirmation
+        //      - then dispatches to the API (which means we need to know which one it is, which means refactoring)
+        
         // replace with a real controller on the form that:
         //  - can do new (how does one reset automatically? need to generate empty shallow instance from schema)
         //  - can do edit
         //  - can serialise and send, taking _id, _rev, and proper URL/$resource.action into account
         // UI to show form (new button)
-        // add a bunch of content
         // list content
         //  - click row to edit
         // pagination
@@ -108,7 +119,7 @@ angular.module("the-library", ["the-library-api"])
     })
     // XXX move this to couth
     // built from http://www.smartjava.org/content/drag-and-drop-angularjs-using-jquery-ui
-    .directive('couthDnd', function() {
+    .directive("couthDnd", function() {
         return function (scope, element, attrs) {
             var toUpdate
             ,   startIndex = -1
@@ -145,7 +156,18 @@ angular.module("the-library", ["the-library-api"])
         };
     })
     // XXX move this to couth
+    .directive("couthType", function () {
+        return function (scope, element, attrs) {
+            scope.$emit("couth:register-editor", attrs.couthType, scope);
+        };
+    })
+    // XXX move this to couth
     .controller("CouthCtrl", function ($scope, $rootScope, $http) {
+        function loading () { $scope.$emit("couth:loading"); }
+        function done () { $scope.$emit("couth:done"); }
+        loading();
+
+        // manage users
         function resetUser () {
             $rootScope.$couthUser = {
                 name:       null
@@ -156,9 +178,6 @@ angular.module("the-library", ["the-library-api"])
         function isAdmin (roles) {
             return roles.indexOf("_admin") > -1;
         }
-        function loading () { $scope.$emit("couth:loading"); }
-        function done () { $scope.$emit("couth:done"); }
-        loading();
         $http.get("/couth/session")
             .success(function (data) {
                 done();
@@ -256,6 +275,27 @@ angular.module("the-library", ["the-library-api"])
         $scope.$couthSuccess = false;
         $scope.$on("couth:success", function (evt, data) {
             $scope.$couthSuccess = data.reason;
+        });
+        
+        // editor management
+        $scope.$couthEditors = {};
+        $scope.$on("couth:register-editor", function (evt, type, scope) {
+            $scope.$couthEditors[type] = scope;
+        });
+        $scope.$on("couth:edit", function (evt, obj) {
+            if (!obj.couthType) return;
+            var ed = $scope.$couthEditors[obj.couthType];
+            if (!ed) return;
+            ed.$couthInstance = obj;
+            ed.$couthMode = "edit";
+            ed.$couthFormShow = true;
+        });
+        $scope.$on("couth:new", function (evt, type) {
+            var ed = $scope.$couthEditors[type];
+            if (!ed) return;
+            ed.$couthInstance = {};
+            ed.$couthMode = "new";
+            ed.$couthFormShow = true;
         });
     })
 ;

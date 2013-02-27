@@ -6,6 +6,7 @@
     <tr>
       <th>Key</th>
       <th>Sources</th>
+      <th ng-show='$couthUser.name'>Actions</th>
     </tr>
     <tr ng-repeat='spec in specs'>
       <td>{{ spec.shortName }}</td>
@@ -16,6 +17,10 @@
             <span class='label'>{{src.type}}</span>
           </li>
         </ul>
+      </td>
+      <td ng-show='$couthUser.name'>
+        <button type='button' class='btn btn-mini' ng-click='$emit("couth:edit", spec)'>Edit</button>
+        <button type='button' class='btn btn-mini btn-danger' ng-click='$emit("couth:delete", spec)' ng-show='$couthUser.isAdmin'>&times;</button>
       </td>
     </tr>
   </table>
