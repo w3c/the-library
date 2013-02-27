@@ -19,7 +19,7 @@ angular.module("the-library-api", ["ngResource"])
     // })
     .factory("Specs", function ($resource) {
         return $resource("/specs/", {}, {
-            list:   { method: "GET", isArray: true }
+            list:   { method: "GET" }
         });
     })
     .factory("CreateSpec", function ($resource) {

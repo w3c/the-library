@@ -57,6 +57,7 @@ app.type("spec")
                     ,   type:   {
                             type:           "string"
                         ,   description:    "Type"
+                        ,   required:       true
                         ,   "enum":         ["html-spec", "respec-source", "respec-output"]
                         }
                     }

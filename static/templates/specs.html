@@ -2,7 +2,7 @@
 <div>
   <h2>Specs</h2>
   <div ng-include="'/couth/forms/spec.html'"></div>
-  <table>
+  <table class='table table-striped table-hover'>
     <tr>
       <th>Key</th>
       <th>Sources</th>
@@ -11,7 +11,10 @@
       <td>{{ spec.shortName }}</td>
       <td>
         <ul>
-          <li ng-repeat='src in spec.sources'><a href='{{src.url}}'>{{src.url}}</a> <span>{{src.type}}</span></li>
+          <li ng-repeat='src in spec.sources'>
+            <a href='{{src.url}}' target='_new'>{{src.url}}</a>
+            <span class='label'>{{src.type}}</span>
+          </li>
         </ul>
       </td>
     </tr>
