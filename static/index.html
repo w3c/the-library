@@ -39,16 +39,66 @@
             <span class="icon-bar"></span>
           </button>
           <a class="brand" href="/">The Library</a>
-          <!-- <div class="nav-collapse collapse">
-            <p class="navbar-text pull-right">
-              Logged in as <a href="#" class="navbar-link">Username</a>
-            </p>
+          <div class="nav-collapse collapse">
+            <!-- XXX move this to couth -->
+            <div class="nav pull-right ng-cloak" ng-cloak ng-show='$couthLoading'>
+              <img width="32" height="32" style="margin-top: 4px; display: none;" src="/img/loader.gif">
+            </div>
+            <!-- XXX move this to couth -->
+            <ul class="nav pull-right ng-cloak" ng-cloak>
+              <li class="divider-vertical"></li>
+              <li ng-show='!$couthUser.name'>
+                <div class='btn-group couth-signup'>
+                  <button type='button' class="btn btn-small btn-success dropdown-toggle" data-toggle="dropdown">Sign Up</button>
+                  <div class='dropdown-menu pull-right'>
+                    <form class='form-inline'>
+                      <fieldset ng-click='$event.stopPropagation()'>
+                        <label>
+                          Name
+                          <input type='text' ng-model='username' required class='input-small'>
+                        </label>
+                        <label>
+                          Password
+                          <input type='password' ng-model='password' required class='input-small'>
+                        </label>
+                        <button type='submit' class='btn btn-success' ng-click='$couthSignupForm($event, username, password)'>Ok</button>
+                      </fieldset>
+                    </form>
+                  </div>
+                </div>
+              </li>
+              <li ng-show='!$couthUser.name'>
+                <div class='btn-group couth-login'>
+                  <button type='button' class="btn btn-small btn-primary dropdown-toggle" data-toggle="dropdown">Login</button>
+                  <div class='dropdown-menu pull-right'>
+                    <form class='form-inline'>
+                      <fieldset ng-click='$event.stopPropagation()'>
+                        <label>
+                          Name
+                          <input type='text' ng-model='username' required class='input-small'>
+                        </label>
+                        <label>
+                          Password
+                          <input type='password' ng-model='password' required class='input-small'>
+                        </label>
+                        <button type='submit' class='btn btn-success' ng-click='$couthLoginForm($event, username, password)'>Login</button>
+                      </fieldset>
+                    </form>
+                  </div>
+                </div>
+              </li>
+              <li ng-show='$couthUser.name'>
+                <button type='button' class="btn btn-small btn-danger" ng-click='$couthLogout()'>Logout</button>
+              </li>
+            </ul>
+<!--
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
-          </div> -->
+-->
+          </div>
         </div>
       </div>
     </div>

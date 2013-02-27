@@ -155,53 +155,102 @@ angular.module("the-library", ["the-library-api"])
         function isAdmin (roles) {
             return roles.indexOf("_admin") > -1;
         }
+        function loading () {
+            $scope.$emit("couth:loading");
+        }
+        function done () {
+            $scope.$emit("couth:done");
+        }
+        loading();
         $http.get("/couth/session")
             .success(function (data) {
+                done();
                 $rootScope.$couthUser = data.userCtx;
                 $rootScope.$couthUser.isAdmin = isAdmin(data.userCtx.roles);
             })
             .error(function () {
+                done();
                 resetUser();
                 $scope.$emit("couth:error", { reason: "Failed to open a session with the server." });
             })
         ;
-        $rootScope.$couthLogin = function (username, password) {
+        $rootScope.$couthLogin = function (username, password, cb) {
+            loading();
             $http.post("/couth/login", { name: username, password: password })
                 .success(function (data) {
+                    done();
                     if (!$rootScope.$couthUser) $rootScope.$couthUser = {};
                     $rootScope.$couthUser.name = username; // Couch returns null for that
                     $rootScope.$couthUser.roles = data.roles;
                     $rootScope.$couthUser.isAdmin = isAdmin(data.roles);
+                    cb();
                 })
                 .error(function (data, status) {
+                    done();
                     resetUser();
                     $scope.$emit("couth:error", { status: status, reason: data.reason || "Login failed." });
                 })
             ;
         };
         $rootScope.$couthLogout = function () {
+            loading();
             $http["delete"]("/couth/logout")
-                .success(resetUser)
+                .success(function () {
+                    done();
+                    resetUser();
+                })
                 .error(function () {
+                    done();
                     // I'm not sure this can ever happen
                     $scope.$emit("couth:error", { reason: "Logout failed." });
                 })
             ;
         };
-        $rootScope.$couthSignup = function (username, password) {
+        $rootScope.$couthSignup = function (username, password, cb) {
             var id = encodeURIComponent("org.couchdb.user:" + username);
+            loading();
             $http.put("/couth/signup/" + id, { name: username, password: password, type: "user", roles: [] })
                 .success(function () {
+                    done();
                     if (!$rootScope.$couthUser) $rootScope.$couthUser = {};
                     $rootScope.$couthUser.name = username;
                     $rootScope.$couthUser.roles = [];
                     $rootScope.$couthUser.isAdmin = false;
+                    cb();
                 })
                 .error(function (data, status) {
+                    done();
                     $scope.$emit("couth:error", { status: status, reason: data.reason || "Signup failed." });
                 })
             ;
         };
+        // expose the above to forms
+        $rootScope.$couthSignupForm = function (evt, username, password) {
+            evt.preventDefault();
+            $rootScope.$couthSignup(username, password, function () {
+                // this isn't kosher, but I can't think of a cleaner way of tell Bootstrap
+                // to remove its dropdown
+                $("body").trigger("click");
+            });
+        };
+        $rootScope.$couthLoginForm = function (evt, username, password) {
+            evt.preventDefault();
+            $rootScope.$couthLogin(username, password, function () {
+                // this isn't kosher, but I can't think of a cleaner way of tell Bootstrap
+                // to remove its dropdown
+                $("body").trigger("click");
+            });
+        };
+        
+        // loading indicator
+        $scope.$couthLoading = false;
+        $scope.$on("couth:loading", function () {
+            $scope.$couthLoading = true;
+        });
+        $scope.$on("couth:done", function () {
+            $scope.$couthLoading = false;
+        });
+        
         // errors and successes messaging
         $scope.$couthError = false;
         $scope.$on("couth:error", function (evt, data) {

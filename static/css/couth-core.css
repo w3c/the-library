@@ -22,3 +22,11 @@
 [ng\:cloak], [ng-cloak], .ng-cloak {
     display: none;
 }
+
+.couth-signup {
+    margin-right:   10px;
+}
+
+.dropdown-menu .form-inline {
+    margin: 10px 20px;
+}
