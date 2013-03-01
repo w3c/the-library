@@ -13,6 +13,26 @@ angular.module("the-library", ["CouthResourceAPI"])
             return ($location.path().substr(0, path.length) === path) ? "active" : "";
         };
     })
+    // XXX keep this on for debug
+    .config(function ($httpProvider) {
+        $httpProvider.responseInterceptors.push(function () {
+            return function (promise) {
+                return promise.then(
+                        function (res) {
+                            console.log("[OK] %s for %s %s", res.status, res.config.method, res.config.url);
+                            return res;
+                        }
+                    ,   function () {
+                            console.log("[ERROR]", arguments);
+                            return arguments;
+                        }
+                );
+            };
+        });
+    })
+    // XXX a lot of what's below needs to be made generic
+    // probably not as a controller since we want to allow people the ability
+    // to do their own thing there, but certainly as a service
     .controller("SpecsCtrl", function ($scope, $rootScope, Specs) {
         function loading () { $scope.$emit("couth:loading"); }
         function done () { $scope.$emit("couth:done"); }
@@ -23,44 +43,51 @@ angular.module("the-library", ["CouthResourceAPI"])
             });
         }
         listSpecs();
-        $scope.$on("couth:create", function (evt, obj, scope) {
-            loading();
-            console.log("create", obj);
-            // XXX before doing that, we need to check that it's unique with a GET to its (real) ID
-            // and for *that* to happen, its ID field needs to be known
-            // var spec = new CreateSpec(obj);
-            // spec.$create(function () {
-            //     done();
-            //     scope.$couthFormShow = false;
-            //     $scope.$emit("couth:success", { reason: "Specification created." });
-            //     listSpecs();
-            // }, function (err) {
-            //     done();
-            //     console.log(err);
-            //     var reason = "unknown";
-            //     if (err.data) reason = err.data.reason || err.data.error;
-            //     $scope.$emit("couth:error", { status: err.status, reason: reason });
-            // });
-            Specs.create(obj, function () {
+        
+        // DEBUG
+        // ONLY THIS WORKS
+        // XXX
+        //  which means that I need a way of getting the ID to I can call Specs.read({ id: obj[id] });
+        Specs.read({ id: "xtest2" }, function (data) { console.log("test2", data); });
+        // EODEBUG
+        
+        function checkExists (obj, cb) {
+            console.log(obj);
+            Specs.read(obj, function (data) {
+                    console.log("success", data);
+                    // this works around stupidity in Couch
+                    if (data.error === "not_found") return cb(null);
+                    cb(true); // failure
+                }, function (data) {
+                    console.log("err", data);
+                    cb(null);
+                });
+        }
+        function commonError (err) {
+            done();
+            console.log(err);
+            var reason = "unknown";
+            if (err.data) reason = err.data.reason || err.data.error;
+            $scope.$emit("couth:error", { status: err.status, reason: reason });
+        }
+        function makeCommonSuccess (scope, mode) {
+            return function () {
                 done();
                 scope.$couthFormShow = false;
-                $scope.$emit("couth:success", { reason: "Specification created." });
+                $scope.$emit("couth:success", { reason: "Specification " + mode + "d." });
                 listSpecs();
-            }, function (err) {
-                done();
-                console.log(err);
-                var reason = "unknown";
-                if (err.data) reason = err.data.reason || err.data.error;
-                $scope.$emit("couth:error", { status: err.status, reason: reason });
+            };
+        }
+        $scope.$on("couth:create", function (evt, obj, scope) {
+            loading();
+            checkExists(obj, function (err) {
+                if (err) return $scope.$emit("couth:error", { reason: "ID already exists. "});
+                Specs.create(obj, makeCommonSuccess(scope, "create"), commonError);
             });
         });
-        $scope.$on("couth:update", function (evt, obj) {
-            console.log("update", obj);
-        });
-        // XXX remove this after debugging
-        $scope.$on("couth:error", function (evt, obj) {
-            // XXX show the error using BS
-            console.log(obj);
+        $scope.$on("couth:update", function (evt, obj, scope) {
+            loading();
+            Specs.update(obj, makeCommonSuccess(scope, "update"), commonError);
         });
     })
     // XXX
