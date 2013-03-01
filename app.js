@@ -41,7 +41,7 @@ function namedRequiredString (name, pat) {
     if (pat) ret.pattern = pat;
     return ret;
 }
-app.type("spec")
+app.type("specs")
     .schema({
         type:           "object"
     ,   description:    "Specification"

@@ -15,12 +15,12 @@ function AppTester (name) {
 }
 
 AppTester.prototype = {
-    populate:   function (path, objects, cb) {
+    populate:   function (objects, cb) {
         objects = objects.concat([]);
         // for each object
         //  set its type
         //  POST it to the path
-        var url = this.server + path, self = this;
+        var url = this.server + "/" + this.name + "/create", self = this;
         function sendObj () {
             if (!objects.length) return cb();
             var obj = objects.shift();
@@ -35,13 +35,13 @@ AppTester.prototype = {
         }
         sendObj();
     }
-,   each: function (path, key, objects, cb) {
+,   each: function (key, objects, cb) {
         objects = objects.concat([]);
-        var url = this.server + path;
+        var url = this.server + "/" + this.name + "/";
         function sendObj () {
             if (!objects.length) return cb();
             var obj = objects.shift();
-            request.get(url.replace(":id", obj[key]), function (err, res, doc) {
+            request.get(url + obj[key], function (err, res, doc) {
                 doc = JSON.parse(doc);
                 expect(err).to.not.be.ok();
                 expect(res.statusCode).to.equal(200);
@@ -51,20 +51,20 @@ AppTester.prototype = {
         }
         sendObj();
     }
-,   all: function (path, objects, cb) {
-        var url = this.server + path;
+,   all: function (objects, cb) {
+        var url = this.server + "/" + this.name;
         request.get(url, function (err, res, docs) {
             docs = JSON.parse(docs);
             expect(err).to.not.be.ok();
             expect(res.statusCode).to.equal(200);
             var docMap = {};
-            for (var i = 0, n = docs.rows.length; i < n; i++) docMap[docs.rows[i].id] = true;
+            for (var i = 0, n = docs.rows.length; i < n; i++) docMap[docs.rows[i]._id] = true;
             for (var i = 0, n = objects.length; i < n; i++) expect(docMap[objects[i]._id]).to.be.ok();
             cb();
         });
     }
-,   update: function (path, obj, cb) {
-        var url = (this.server + path).replace(/:id$/, obj._id);
+,   update: function (obj, cb) {
+        var url = this.server + "/" + this.name + "/" + obj._id;
         request.put(url, { json: obj }, function (err, res) {
             expect(err).to.not.be.ok();
             expect(res.statusCode).to.equal(201);
@@ -72,9 +72,9 @@ AppTester.prototype = {
             cb();
         });
     }
-,   noGuestCreate:  function (path, obj, cb) {
+,   noGuestCreate:  function (obj, cb) {
         obj.couthType = this.name;
-        var url = this.anonServer + path;
+        var url = this.anonServer + "/" + this.name + "/create";
         request.post(url, { json: obj }, function (err, res, doc) {
             expect(err).to.not.be.ok();
             expect(res.statusCode).to.equal(403);
@@ -83,8 +83,8 @@ AppTester.prototype = {
         });
         
     }
-,   noGuestUpdate:  function (path, obj, cb) {
-        var url = (this.anonServer + path).replace(/:id$/, obj._id);
+,   noGuestUpdate:  function (obj, key, cb) {
+        var url = this.anonServer + "/" + this.name + "/" + obj._id;
         request.put(url, { json: obj }, function (err, res, doc) {
             expect(err).to.not.be.ok();
             expect(res.statusCode).to.equal(403);
@@ -92,8 +92,8 @@ AppTester.prototype = {
             cb();
         });
     }
-,   noGuestDelete:  function (path, obj, cb) {
-        var url = (this.anonServer + path).replace(/:id$/, obj._id);
+,   noGuestDelete:  function (obj, cb) {
+        var url = this.anonServer + "/" + this.name + "/" + obj._id;
         request.del(url, function (err, res, doc) {
             doc = JSON.parse(doc);
             expect(err).to.not.be.ok();
@@ -103,8 +103,8 @@ AppTester.prototype = {
         });
         
     }
-,   noInvalid:  function (path, obj, cb) {
-        var url = this.server + path;
+,   noInvalid:  function (obj, cb) {
+        var url = this.server + "/" + this.name + "/create";
         obj.couthType = this.name;
         request.post(url, { json: obj }, function (err, res, doc) {
             expect(err).to.not.be.ok();
@@ -114,13 +114,13 @@ AppTester.prototype = {
         });
         
     }
-,   remove: function (path, objects, cb) {
+,   remove: function (objects, cb) {
         objects = objects.concat([]);
-        var url = this.server + path;
+        var url = this.server + "/" + this.name + "/";
         function sendObj () {
             if (!objects.length) return cb();
             var obj = objects.shift();
-            request.del(url.replace("*", obj._id), function (err, res) {
+            request.del(url + obj._id, function (err, res) {
                 expect(err).to.not.be.ok();
                 expect(res.statusCode).to.equal(201);
                 sendObj();

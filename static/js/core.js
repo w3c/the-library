@@ -1,6 +1,6 @@
 /*global angular */
 
-angular.module("the-library", ["the-library-api"])
+angular.module("the-library", ["CouthResourceAPI"])
     .config(function ($routeProvider, $locationProvider) {
         $locationProvider.html5Mode(true);
         $routeProvider
@@ -13,7 +13,7 @@ angular.module("the-library", ["the-library-api"])
             return ($location.path().substr(0, path.length) === path) ? "active" : "";
         };
     })
-    .controller("SpecsCtrl", function ($scope, $rootScope, Specs, CreateSpec) {
+    .controller("SpecsCtrl", function ($scope, $rootScope, Specs) {
         function loading () { $scope.$emit("couth:loading"); }
         function done () { $scope.$emit("couth:done"); }
         function listSpecs () {
@@ -28,8 +28,20 @@ angular.module("the-library", ["the-library-api"])
             console.log("create", obj);
             // XXX before doing that, we need to check that it's unique with a GET to its (real) ID
             // and for *that* to happen, its ID field needs to be known
-            var spec = new CreateSpec(obj);
-            spec.$create(function () {
+            // var spec = new CreateSpec(obj);
+            // spec.$create(function () {
+            //     done();
+            //     scope.$couthFormShow = false;
+            //     $scope.$emit("couth:success", { reason: "Specification created." });
+            //     listSpecs();
+            // }, function (err) {
+            //     done();
+            //     console.log(err);
+            //     var reason = "unknown";
+            //     if (err.data) reason = err.data.reason || err.data.error;
+            //     $scope.$emit("couth:error", { status: err.status, reason: reason });
+            // });
+            Specs.create(obj, function () {
                 done();
                 scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification created." });

@@ -1,22 +1,15 @@
 /*global angular */
 
-// XXX this should have interceptors for errors (or whatever works)
-// http://www.espeo.pl/2012/02/26/authentication-in-angularjs-application
-// except that we have 403 for this, and that we should also intercept 409,
-// 404 and possibly others since they map to real errors
-// we need a root couthUser object that can also make it possible to have
-// templates that display different controls depending on its value
 
 // Change the API:
 //  - make it so that we can have a single resource provider for an API
 //  - make it so that couthType uses something else, like couthType, because it interferes with angular
 
+// XXX
+//  - update API (generate it)
+//  - register it? that way it can be automatically plugged?
+
 angular.module("the-library-api", ["ngResource"])
-    // .config(function ($httpProvider) {
-    //     $httpProvider.defaults.transformRequest = [function (d) {
-    //         return angular.isObject(d) ? JSON.stringify(d) : d;
-    //     }];
-    // })
     .factory("Specs", function ($resource) {
         return $resource("/specs/", {}, {
             list:   { method: "GET" }
