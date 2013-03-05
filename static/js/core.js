@@ -44,16 +44,9 @@ angular.module("the-library", ["CouthResourceAPI"])
         }
         listSpecs();
         
-        // DEBUG
-        // ONLY THIS WORKS
-        // XXX
-        //  which means that I need a way of getting the ID to I can call Specs.read({ id: obj[id] });
-        Specs.read({ id: "xtest2" }, function (data) { console.log("test2", data); });
-        // EODEBUG
-        
         function checkExists (obj, cb) {
-            console.log(obj);
-            Specs.read(obj, function (data) {
+            var key = $rootScope.$couthType2ID[obj.couthType];
+            Specs.read({ _id: obj[key] }, function (data) {
                     console.log("success", data);
                     // this works around stupidity in Couch
                     if (data.error === "not_found") return cb(null);
@@ -70,8 +63,12 @@ angular.module("the-library", ["CouthResourceAPI"])
             if (err.data) reason = err.data.reason || err.data.error;
             $scope.$emit("couth:error", { status: err.status, reason: reason });
         }
-        function makeCommonSuccess (scope, mode) {
-            return function () {
+        function makeCommonSuccess (obj, scope, mode) {
+            return function (data, headers) {
+                // XXX we need to update _id and _rev, which means we need access
+                //     I think we should drop ngResource in favour of something handrolled since this doesn't work
+                if (mode === "create") obj._id = data.id;
+                obj._rev = headers("x-couch-update-newrev");
                 done();
                 scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification " + mode + "d." });
@@ -82,12 +79,13 @@ angular.module("the-library", ["CouthResourceAPI"])
             loading();
             checkExists(obj, function (err) {
                 if (err) return $scope.$emit("couth:error", { reason: "ID already exists. "});
-                Specs.create(obj, makeCommonSuccess(scope, "create"), commonError);
+                Specs.create(obj, makeCommonSuccess(obj, scope, "create"), commonError);
             });
         });
         $scope.$on("couth:update", function (evt, obj, scope) {
             loading();
-            Specs.update(obj, makeCommonSuccess(scope, "update"), commonError);
+            console.log("calling update");
+            Specs.update(obj, makeCommonSuccess(obj, scope, "update"), commonError);
         });
     })
     // XXX
