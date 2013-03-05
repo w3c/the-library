@@ -3,11 +3,13 @@
 // XXX
 //  this is not working out well, instead do this:
 //  - remove the templated one
-//  - don't build it with $resource, hand roll it
-//  - make sure it supports promises (same interface as $resource basically)
-//  - make sure it hides away all the nasties involved in exposing the Couch stuff
 //  - once that works, refactor it into something generic that knows about the list of
 //    types that Couth has (these should be loaded separately, let's avoid codegen please)
+
+// possible enhancement
+// this could have interceptors for errors (or whatever works)
+// http://www.espeo.pl/2012/02/26/authentication-in-angularjs-application
+// except that we have 403 for this, and that we should also intercept 409,
 
 angular.module("CouthResourceAPI", [])
     .factory("Specs", function ($http, $q) {
@@ -90,6 +92,12 @@ angular.module("CouthResourceAPI", [])
                             return deferred.reject(result);
                         }
                 );
+            }
+        ,   del:   function (obj, success, error) {
+                var prom = $http["delete"]("/specs/" + obj._id, strictAccept);
+                if (success) prom.success(success);
+                if (error) prom.error(error);
+                return prom;
             }
         };
     })

@@ -13,23 +13,6 @@ angular.module("the-library", ["CouthResourceAPI"])
             return ($location.path().substr(0, path.length) === path) ? "active" : "";
         };
     })
-    // XXX keep this on for debug
-    // .config(function ($httpProvider) {
-    //     $httpProvider.responseInterceptors.push(function () {
-    //         return function (promise) {
-    //             return promise.then(
-    //                     function (res) {
-    //                         console.log("[OK] %s for %s %s", res.status, res.config.method, res.config.url);
-    //                         return res;
-    //                     }
-    //                 ,   function () {
-    //                         console.log("[ERROR]", arguments);
-    //                         return arguments;
-    //                     }
-    //             );
-    //         };
-    //     });
-    // })
     // XXX a lot of what's below needs to be made generic
     // probably not as a controller since we want to allow people the ability
     // to do their own thing there, but certainly as a service
@@ -54,7 +37,7 @@ angular.module("the-library", ["CouthResourceAPI"])
         function makeCommonSuccess (obj, scope, mode) {
             return function () {
                 done();
-                scope.$couthFormShow = false;
+                if (scope) scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification " + mode + "d." });
                 listSpecs();
             };
@@ -81,6 +64,11 @@ angular.module("the-library", ["CouthResourceAPI"])
         $scope.$on("couth:update", function (evt, obj, scope) {
             loading();
             Specs.update(obj, makeCommonSuccess(obj, scope, "update"), commonError);
+        });
+        // XXX for this we need to make sure that we prompt to confirm first
+        $scope.$on("couth:delete", function (evt, obj) {
+            loading();
+            Specs.del(obj, makeCommonSuccess(obj, null, "delete"), commonError);
         });
     })
     // XXX
@@ -125,20 +113,7 @@ angular.module("the-library", ["CouthResourceAPI"])
             evt.preventDefault();
         };
         // XXX
-        //  edit communication model
-        //  $emit("couth:delete", spec)
-        //      - first shows a confirmation
-        //      - then dispatches to the API (which means we need to know which one it is, which means refactoring)
-        
-        // replace with a real controller on the form that:
-        //  - can do new (how does one reset automatically? need to generate empty shallow instance from schema)
-        //  - can do edit
-        //  - can serialise and send, taking _id, _rev, and proper URL/$resource.action into account
-        // UI to show form (new button)
-        // list content
-        //  - click row to edit
         // pagination
-        // some common CSS complementing bootstrap loaded in /couth/css/form.css
     })
     // XXX move this to couth
     // built from http://www.smartjava.org/content/drag-and-drop-angularjs-using-jquery-ui
