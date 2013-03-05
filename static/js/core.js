@@ -52,7 +52,7 @@ angular.module("the-library", ["CouthResourceAPI"])
             $scope.$emit("couth:error", { status: err.status, reason: reason });
         }
         function makeCommonSuccess (obj, scope, mode) {
-            return function (data) {
+            return function () {
                 done();
                 scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification " + mode + "d." });
@@ -71,9 +71,15 @@ angular.module("the-library", ["CouthResourceAPI"])
                         }
             );
         });
+        // XXX
+        //  in the below, we need to make sure that the ID has not been changed
+        //  actually, the ID field should be made disabled in the editor on edit
+        //  likewise, we should ensure that when saving occurs, if there is an error
+        //  the form is reopened with the proper value
+        //  also, ideally we should be able to edit a clone (so that it doesn't live change the
+        //  table view beneath)
         $scope.$on("couth:update", function (evt, obj, scope) {
             loading();
-            console.log("calling update");
             Specs.update(obj, makeCommonSuccess(obj, scope, "update"), commonError);
         });
     })
