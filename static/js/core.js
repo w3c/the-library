@@ -14,22 +14,22 @@ angular.module("the-library", ["CouthResourceAPI"])
         };
     })
     // XXX keep this on for debug
-    .config(function ($httpProvider) {
-        $httpProvider.responseInterceptors.push(function () {
-            return function (promise) {
-                return promise.then(
-                        function (res) {
-                            console.log("[OK] %s for %s %s", res.status, res.config.method, res.config.url);
-                            return res;
-                        }
-                    ,   function () {
-                            console.log("[ERROR]", arguments);
-                            return arguments;
-                        }
-                );
-            };
-        });
-    })
+    // .config(function ($httpProvider) {
+    //     $httpProvider.responseInterceptors.push(function () {
+    //         return function (promise) {
+    //             return promise.then(
+    //                     function (res) {
+    //                         console.log("[OK] %s for %s %s", res.status, res.config.method, res.config.url);
+    //                         return res;
+    //                     }
+    //                 ,   function () {
+    //                         console.log("[ERROR]", arguments);
+    //                         return arguments;
+    //                     }
+    //             );
+    //         };
+    //     });
+    // })
     // XXX a lot of what's below needs to be made generic
     // probably not as a controller since we want to allow people the ability
     // to do their own thing there, but certainly as a service
@@ -43,19 +43,7 @@ angular.module("the-library", ["CouthResourceAPI"])
             });
         }
         listSpecs();
-        
-        function checkExists (obj, cb) {
-            var key = $rootScope.$couthType2ID[obj.couthType];
-            Specs.read({ _id: obj[key] }, function (data) {
-                    console.log("success", data);
-                    // this works around stupidity in Couch
-                    if (data.error === "not_found") return cb(null);
-                    cb(true); // failure
-                }, function (data) {
-                    console.log("err", data);
-                    cb(null);
-                });
-        }
+
         function commonError (err) {
             done();
             console.log(err);
@@ -64,11 +52,7 @@ angular.module("the-library", ["CouthResourceAPI"])
             $scope.$emit("couth:error", { status: err.status, reason: reason });
         }
         function makeCommonSuccess (obj, scope, mode) {
-            return function (data, headers) {
-                // XXX we need to update _id and _rev, which means we need access
-                //     I think we should drop ngResource in favour of something handrolled since this doesn't work
-                if (mode === "create") obj._id = data.id;
-                obj._rev = headers("x-couch-update-newrev");
+            return function (data) {
                 done();
                 scope.$couthFormShow = false;
                 $scope.$emit("couth:success", { reason: "Specification " + mode + "d." });
@@ -77,10 +61,15 @@ angular.module("the-library", ["CouthResourceAPI"])
         }
         $scope.$on("couth:create", function (evt, obj, scope) {
             loading();
-            checkExists(obj, function (err) {
-                if (err) return $scope.$emit("couth:error", { reason: "ID already exists. "});
-                Specs.create(obj, makeCommonSuccess(obj, scope, "create"), commonError);
-            });
+            // check that the object doesn't exist before creating it
+            Specs.read( obj
+                    ,   function () {
+                            $scope.$emit("couth:error", { reason: "ID already exists. "});
+                        }
+                    ,   function () {
+                            Specs.create(obj, makeCommonSuccess(obj, scope, "create"), commonError);
+                        }
+            );
         });
         $scope.$on("couth:update", function (evt, obj, scope) {
             loading();
