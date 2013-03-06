@@ -44,15 +44,7 @@ angular.module("the-library", ["CouthResourceAPI"])
         }
         $scope.$on("couth:create", function (evt, obj, scope) {
             loading();
-            // check that the object doesn't exist before creating it
-            Specs.read( obj
-                    ,   function () {
-                            $scope.$emit("couth:error", { reason: "ID already exists. "});
-                        }
-                    ,   function () {
-                            Specs.create(obj, makeCommonSuccess(obj, scope, "create"), commonError);
-                        }
-            );
+            Specs.create(obj, makeCommonSuccess(obj, scope, "create"), commonError);
         });
         // XXX
         //  in the below, we need to make sure that the ID has not been changed
