@@ -2,6 +2,7 @@
 <div>
   <h2>Specifications</h2>
   <div ng-include="'/couth/forms/specs.html'"></div>
+  <!-- XXX add some filter and (client-side) pagination -->
   <table class='table table-striped table-hover'>
     <tr>
       <th>Key</th>
@@ -19,6 +20,7 @@
         </ul>
       </td>
       <td ng-show='$couthUser.name' class='couth-actions'>
+        <!-- XXX make these reusable includes -->
         <button type='button' class='btn btn-mini' ng-click='$emit("couth:edit", spec)'>Edit</button>
         <button type='button' class='btn btn-mini btn-danger' 
                 ng-click='spec.$couthConfirm = true' ng-show='$couthUser.isAdmin &amp;&amp; !spec.$couthConfirm'>&times;</button>
