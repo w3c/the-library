@@ -35,12 +35,14 @@ app
 var statPath = pth.join(__dirname, "static");
 app.addStaticDir(statPath);
 
-// ### SPECS ###
+// helpers
 function namedRequiredString (name, pat) {
     var ret = { type: "string", description: name, required: true };
     if (pat) ret.pattern = pat;
     return ret;
 }
+
+// ### SPECS ###
 app.type("specs")
     .schema({
         type:           "object"
@@ -78,7 +80,7 @@ app.type("specs")
 
 // process CLI and run
 app
-    .cli() // this doesn't seem to work
+    .cli()
     .deploy(function (err) {
         console.log(err ? "BAD!" : "ALL OK!");
     })

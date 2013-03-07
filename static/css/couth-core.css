@@ -1,4 +1,6 @@
 
+/* XXX this needs to move to the core as well */
+
 .couth-item {
     background: #fff;
 }
@@ -33,5 +35,9 @@
 
 .couth-form-controls {
     margin-bottom:  10px;
+    text-align: right;
+}
+
+td.couth-actions, th.couth-actions {
     text-align: right;
 }
