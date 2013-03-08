@@ -29,6 +29,7 @@ app
     .all()
         .db("w3clibrary")
         .index("/index.html")
+        .webAppRoot("/app/")
 ;
 
 // load statics
