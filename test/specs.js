@@ -1,7 +1,8 @@
 
-var AppTester = require("./lib/tester")
+var AppTester = require("couth/lib/tester")
+,   pth = require("path")
 ,   async = require("async")
-,   tester = new AppTester("specs")
+,   tester = new AppTester("specs", pth.join(__dirname, "../local-config.json"))
 ,   specs = [
         { shortName: "html", sources: [] }
     ,   { shortName: "rex", sources: [{ url: "http://rex", type: "html-spec" }] }
