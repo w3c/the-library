@@ -2,39 +2,39 @@
 var AppTester = require("couth/lib/tester")
 ,   pth = require("path")
 ,   async = require("async")
-,   tester = new AppTester("specs", pth.join(__dirname, "../local-config.json"))
-,   specs = [
-        { shortName: "html", sources: [] }
-    ,   { shortName: "rex", sources: [{ url: "http://rex", type: "html-spec" }] }
-    ,   { shortName: "svg", sources: [{ url: "http://svg1", type: "respec-source" }, { url: "http://svg2", type: "respec-output" }] }
+,   tester = new AppTester("references", pth.join(__dirname, "../local-config.json"))
+,   refs = [
+        { id: "HTML", status: "WD", href: "http://html", title: "HTML5", date: "2013-03-10", authors: [{ name: "Robin"}], etAl: true }
+    ,   { id: "SVG", status: "REC", href: "http://svg", title: "SVG 1.1", date: "1977-03-15", authors: [{ name: "Jon"}], etAl: false }
+    ,   { id: "REX", status: null, href: "http://rex", title: "Remote Events for XML" }
     ]
-,   valid = { shortName: "xpath", sources: [] }
-,   invalid = { shortName: 42 }
+,   valid = { id: "A", status: "CR", href: "a", title: "A" }
+,   invalid = { id: 42 }
 ;
 
 describe("Specifications", function () {
     it("should populate", function (done) {
-        tester.populate(specs, done);
+        tester.populate(refs, done);
     });
     it("should get each individually", function (done) {
-        tester.each("shortName", specs, done);
+        tester.each("id", refs, done);
     });
     it("should get all at once", function (done) {
-        tester.all(specs, done);
+        tester.all(refs, done);
     });
     it("should update documents", function (done) {
-        specs[0].sources.push({ url: "http://html", type: "html-spec" });
-        tester.update(specs[0], done);
+        refs[0].authors.push({ name: "Ted" });
+        tester.update(refs[0], done);
     });
     it("should enforce permissions", function (done) {
         async.series([
             function (cb) { tester.noGuestCreate(valid, cb); }
-        ,   function (cb) { tester.noGuestUpdate(specs[0], "shortName", cb); }
-        ,   function (cb) { tester.noGuestDelete(specs[0], cb); }
+        ,   function (cb) { tester.noGuestUpdate(refs[0], "id", cb); }
+        ,   function (cb) { tester.noGuestDelete(refs[0], cb); }
         ], done);
     });
     it("should remove the documents", function (done) {
-        tester.remove(specs, done);
+        tester.remove(refs, done);
     });
     it("should reject invalid documents", function (done) {
         tester.noInvalid(invalid, done);
