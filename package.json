@@ -9,5 +9,6 @@
         "mocha":    "1.7.3"
     ,   "expect.js":"0.2.0"
     ,   "async":    "0.2.5"
+    ,   "underscore":   "*"
     }
 }

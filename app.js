@@ -50,9 +50,15 @@ app.type("references")
         type:           "object"
     ,   description:    "Reference"
     ,   properties: {
-            id:         namedRequiredString("ID", "^[\\w_-]+$")
-        ,   href:       namedRequiredString("URL")
-        ,   title:      namedRequiredString("Title")
+            id:         namedRequiredString("ID", "^[\\w_\\.-]+$")
+        ,   href:       {
+                type:           "string"
+            ,   description:    "URL"
+            }
+        ,   title:          {
+                type:           "string"
+            ,   description:    "Title"
+            }
         ,   date:   {
                 type:           "string"
             ,   description:    "Date"
@@ -78,6 +84,10 @@ app.type("references")
         ,   etAl:   {
                 type:           "boolean"
             ,   description:    "Et al."
+            }
+        ,   html:   {
+                type:           "string"
+            ,   description:    "HTML (avoid)"
             }
         }
     })

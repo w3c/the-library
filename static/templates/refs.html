@@ -10,12 +10,15 @@
     <tr ng-repeat='ref in references | startFrom:$couthCurrentPage*$couthPageSize | limitTo:$couthPageSize'>
       <td><strong>{{ ref.id }}</strong></td>
       <td>
-        <span ng-repeat='author in ref.authors'>{{author.name}}<span ng-show='!$last'>; </span></span
-        ><span ng-show='ref.etAl &amp;&amp; ref.authors.length'> et al</span><span ng-show='ref.authors.length'>.</span>
-        <a href='{{ref.href}}'><cite>{{ref.title}}</cite></a>.
-        <span ng-show='ref.date'>{{ref.date}}.</span>
-        <span ng-show='ref.status'>{{ref.status}}.</span>
-        URL: <a href='{{ref.href}}'>{{ref.href}}</a>
+        <div ng-show='ref.html' ng-bind-html-unsafe='ref.html'></div>
+        <div ng-show='!ref.html'>
+          <span ng-repeat='author in ref.authors'>{{author.name}}<span ng-show='!$last'>; </span></span
+          ><span ng-show='ref.etAl &amp;&amp; ref.authors.length'> et al</span><span ng-show='ref.authors.length'>.</span>
+          <a href='{{ref.href}}'><cite>{{ref.title}}</cite></a>.
+          <span ng-show='ref.date'>{{ref.date}}.</span>
+          <span ng-show='ref.status'>{{ref.status}}.</span>
+          URL: <a href='{{ref.href}}'>{{ref.href}}</a>
+        </div>
       </td>
       <td ng-show='$couthUser.name' class='couth-actions'>
         <div ng-include="'/couth/edit-item.html'" ng-init='$couthItem = ref' class='couth-inlined'></div>
