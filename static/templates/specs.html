@@ -19,14 +19,9 @@
         </ul>
       </td>
       <td ng-show='$couthUser.name' class='couth-actions'>
-        <!-- XXX make these reusable includes -->
-        <button type='button' class='btn btn-mini' ng-click='$emit("couth:edit", spec)'>Edit</button>
-        <button type='button' class='btn btn-mini btn-danger' 
-                ng-click='spec.$couthConfirm = true' ng-show='$couthUser.isAdmin &amp;&amp; !spec.$couthConfirm'>&times;</button>
-        <div class='btn-group' ng-show='$couthUser.isAdmin &amp;&amp; spec.$couthConfirm'>
-          <button type='button' class='btn btn-mini btn-danger' ng-click='$emit("couth:delete", spec)'>confirm</button>
-          <button type='button' class='btn btn-mini' ng-click='spec.$couthConfirm = false'>cancel</button>
-        </div>
+        <div ng-include="'/couth/edit-item.html'" ng-init='$couthItem = spec' class='couth-inlined'></div>
+        <div ng-include="'/couth/confirm-delete-item.html'" ng-init='$couthItem = spec'
+             ng-show='$couthUser.isAdmin' class='couth-inlined'></div>
       </td>
     </tr>
   </table>
