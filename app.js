@@ -43,28 +43,41 @@ function namedRequiredString (name, pat) {
     return ret;
 }
 
-// ### SPECS ###
-app.type("specs")
+
+// ### REFERENCES ###
+app.type("references")
     .schema({
         type:           "object"
-    ,   description:    "Specification"
+    ,   description:    "Reference"
     ,   properties: {
-            shortName:  namedRequiredString("Short name", "^\\S+$")
-        ,   sources:    {
+            id:         namedRequiredString("ID", "^[\\w_-]+$")
+        ,   href:       namedRequiredString("URL")
+        ,   title:      namedRequiredString("Title")
+        ,   date:   {
+                type:           "string"
+            ,   description:    "Date"
+            }
+        ,   status: {
+                type:           ["string", "null"]
+            ,   description:    "Status"
+            ,   "enum":     [
+                    "NOTE", "ED", "FPWD", "WD", "LCWD", "CR", "PR", "REC", null
+                ]
+            }
+        ,   authors:    {
                 type:           "array"
-            ,   description:    "Sources"
+            ,   description:    "Authors"
+            // arrays of primitives don't play too well with Angular
             ,   items:  {
-                    type:   "object"
+                    type:       "object"
                 ,   properties: {
-                        url:    namedRequiredString("URL")
-                    ,   type:   {
-                            type:           "string"
-                        ,   description:    "Type"
-                        ,   required:       true
-                        ,   "enum":         ["html-spec", "respec-source", "respec-output"]
-                        }
+                        name:   namedRequiredString("Author")
                     }
                 }
+            }
+        ,   etAl:   {
+                type:           "boolean"
+            ,   description:    "Et al."
             }
         }
     })
@@ -74,10 +87,9 @@ app.type("specs")
     ,   del:    "admin"
     })
     .crudify({
-        id: "shortName"
+        id: "id"
     })
 ;
-
 
 // process CLI and run
 app
