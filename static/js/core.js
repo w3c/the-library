@@ -14,13 +14,18 @@ angular.module("the-library", ["CouthClient", "CouthResourceAPI"])
         };
     })
     .controller("SpecsCtrl", function ($scope, Specs, CouthSimpleCRUD) {
-        CouthSimpleCRUD.runForType( Specs
-                                ,   "Specification"
-                                ,   $scope
-                                ,   function (data) {
-                                        $scope.specs = data.rows;
-                                        $scope.count = data.total_rows;
-                                    }
-        );
+        CouthSimpleCRUD.runForType({
+            type:   Specs
+        ,   name:   "Specification"
+        ,   scope:  $scope
+        ,   onload: function (data) {
+                $scope.specs = data.rows;
+                $scope.count = data.total_rows;
+            }
+        ,   pagination: {
+                pageSize:   5
+            ,   countExpr:  "count"
+            }
+        });
     })
 ;

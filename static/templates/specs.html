@@ -8,7 +8,7 @@
       <th>Sources</th>
       <th ng-show='$couthUser.name' class='couth-actions'>Actions</th>
     </tr>
-    <tr ng-repeat='spec in specs'>
+    <tr ng-repeat='spec in specs | startFrom:$couthCurrentPage*$couthPageSize | limitTo:$couthPageSize'>
       <td>{{ spec.shortName }}</td>
       <td>
         <ul>
@@ -30,4 +30,5 @@
       </td>
     </tr>
   </table>
+  <div ng-include="'/couth/pagination.html'" class='couth-pagination'></div>
 </div>
