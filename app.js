@@ -87,7 +87,8 @@ app.type("references")
     ,   del:    "admin"
     })
     .crudify({
-        id: "id"
+        id:     "id"
+    ,   jsonp:  true
     })
 ;
 
