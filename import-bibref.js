@@ -19,7 +19,6 @@ var fs = require("fs")
     }
 ;
 
-// XXX this needs a check to see if the key exists
 eval(fs.readFileSync(bibpath, "utf8"));
 for (var k in berjon.biblio) {
     (function (k) {
@@ -38,12 +37,26 @@ for (var k in berjon.biblio) {
             entry.authors = authors;
         }
         request.get(endpoint.replace("create", entry.id), function (err, res, doc) {
-            if (JSON.parse(doc).error === "not_found") {
+            var doc = _.isString(doc) ? JSON.parse(doc) : doc;
+            if (doc.error === "not_found") {
                 request.post(endpoint, { json: entry }, function (err, res, doc) {
                     if (err) return console.log("ERROR for " + k);
                     if (res.statusCode !== 201) return console.log("ERROR", k, doc);
                     console.log("OK:" + k);
                 });
+            }
+            else {
+                // doc.title = fixEnt(doc.title);
+                // doc.href = fixEnt(doc.href);
+                // doc.date = fixEnt(doc.date);
+                // for (var i = 0, n = doc.authors.length; i < n; i++) {
+                //     doc.authors[i] = { name: fixEnt(doc.authors[i]) };
+                // }
+                // request.put(endpoint.replace("create", entry._id), { json: entry }, function (err, res, doc) {
+                //     if (err) return console.log("ERROR for " + k);
+                //     if (res.statusCode !== 201) return console.log("ERROR", k, doc);
+                //     console.log("OK:" + k);
+                // });
             }
         });
     }(k));
