@@ -4,9 +4,9 @@ var AppTester = require("couth/lib/tester")
 ,   async = require("async")
 ,   tester = new AppTester("references", pth.join(__dirname, "../local-config.json"))
 ,   refs = [
-        { id: "HTML", status: "WD", href: "http://html", title: "HTML5", date: "2013-03-10", authors: [{ name: "Robin"}], etAl: true }
-    ,   { id: "SVG", status: "REC", href: "http://svg", title: "SVG 1.1", date: "1977-03-15", authors: [{ name: "Jon"}], etAl: false }
-    ,   { id: "REX", status: null, href: "http://rex", title: "Remote Events for XML" }
+        { id: "HTMLX", status: "WD", href: "http://html", title: "HTML5", date: "2013-03-10", authors: [{ name: "Robin"}], etAl: true }
+    ,   { id: "SVGX", status: "REC", href: "http://svg", title: "SVG 1.1", date: "1977-03-15", authors: [{ name: "Jon"}], etAl: false }
+    ,   { id: "REXX", status: null, href: "http://rex", title: "Remote Events for XML" }
     ]
 ,   valid = { id: "A", status: "CR", href: "a", title: "A" }
 ,   invalid = { id: 42 }
