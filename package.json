@@ -3,7 +3,7 @@
 ,   "version":  "0.0.1"
 ,   "private":  true
 ,   "dependencies": {
-        "couth":    "*"
+        "couth":    "0.5.0"
     }
 ,   "devDependencies": {
         "mocha":    "1.7.3"

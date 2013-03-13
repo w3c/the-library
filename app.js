@@ -15,14 +15,24 @@ if (fs.existsSync(localConfigPath)) {
     if (local.port) app.port(local.port);
     if (local.vhost) app.vhost(local.vhost);
     if (local.auth) app.auth(local.auth);
+    if (local.prod) {
+        app.prod();
+        if (local.prod.auth) app.auth(local.prod.auth);
+    }
 }
 
 // production settings
 app
     .prod()
-        .deployTo("https://deploy.library.w3c-test.org/")
-        .vhost("library.w3c-test.org")
+        // XXX a DNS problem is preventing this for now
+        // .deployTo("https://deploy.library.w3c-test.org/")
+        // .vhost("library.w3c-test.org")
+        .deployTo("http://deploy.2017.im/")
+        .port(80)
+        .vhost("library.2017.im")
 ;
+
+
 
 // universal settings
 app
